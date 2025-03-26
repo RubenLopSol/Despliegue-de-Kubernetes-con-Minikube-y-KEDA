@@ -1,0 +1,17 @@
+# Ignorar archivos de configuración específicos de Kubernetes
+*.log
+*.out
+*.err
+
+# Ignorar archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar caché y configuraciones de usuario
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Ignorar archivos de Minikube
+minikube-*
