@@ -44,12 +44,37 @@ deploy-keda:
 create-scaledobject:
 	kubectl apply -f $(SCALEDOBJECT_FILE)
 
+# Instalación de Prometheus con tolerancia al taint
+install-prometheus:
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	helm repo update
+	helm upgrade --install prometheus prometheus-community/prometheus \
+	--namespace monitoring --create-namespace \
+	--set server.service.type=NodePort \
+	--set server.persistentVolume.enabled=false \
+	--set alertmanager.persistentVolume.enabled=false \
+	--set server.global.scrape_interval=15s \
+	--set server.extraScrapeConfigs.enabled=true \
+	--set server.extraScrapeConfigs.name=additional-scrape-configs \
+	--set server.extraScrapeConfigs.key=prometheus-additional.yaml \
+	--set server.tolerations[0].key=dedicated \
+	--set server.tolerations[0].operator=Equal \
+	--set server.tolerations[0].value=prometheus \
+	--set server.tolerations[0].effect=NoSchedule
+
+
+# Aplicar la configuración adicional de scrape para Prometheus
+apply-prometheus-config:
+	kubectl apply -f prometheus_scrape_config.yaml
+
 # Simular tráfico a Nginx usando una herramienta externa
 simulate-traffic:
-	ab -n 10000 -c 150 http://localhost:8080/
+	kubectl port-forward svc/my-app 8080:80 -n $(NAMESPACE) &
+	sleep 5 && ab -n 10000 -c 150 http://localhost:8080/
+
 
 # Ejecutar todos los pasos necesarios para el despliegue
-deploy: create-cluster label-nodes deploy-nginx deploy-keda create-scaledobject simulate-traffic
+deploy: create-cluster label-nodes deploy-nginx deploy-keda create-scaledobject install-prometheus apply-prometheus-config simulate-traffic
 
 # Limpiar el clúster de Minikube
 clean:

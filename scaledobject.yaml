@@ -22,7 +22,9 @@ spec:
               value: 100
               periodSeconds: 15
   triggers:
-    - type: cpu
+    - type: prometheus
       metadata:
-        type: Utilization
-        value: "3"
+        serverAddress: http://prometheus-server.monitoring.svc.cluster.local
+        metricName: nginx_http_requests_total
+        threshold: "10"
+        query: sum(rate(nginx_http_requests_total[1m]))
