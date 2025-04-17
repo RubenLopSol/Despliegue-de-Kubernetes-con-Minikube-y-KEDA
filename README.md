@@ -1,6 +1,6 @@
-# Despliegue de Kubernetes con Minikube y KEDA
+# Despliegue de Kubernetes con Minikube, KEDA y Prometheus
 
-Este proyecto muestra el uso de KEDA para el autoescalado en Kubernetes utilizando Minikube.
+Este proyecto muestra el uso de KEDA para el autoescalado en Kubernetes utilizando Prometheus en Minikube.
 
 ![esquema](image/keda-architecture.png)
 
